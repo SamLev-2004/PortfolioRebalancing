@@ -16,6 +16,16 @@ st.sidebar.markdown("Upload your portfolio to generate optimized trade recommend
 
 uploaded_file = st.sidebar.file_uploader("Upload Portfolio (CSV/TSV)", type=['csv', 'tsv'])
 
+with st.sidebar.expander("📄 View Expected CSV Format"):
+    st.markdown("""
+    Your CSV must contain these exact columns:
+    ```csv
+    ticker, shares, avg_cost, account_type
+    AAPL, 50, 150.00, TFSA
+    VFV.TO, 100, 110.50, RRSP
+    ```
+    """)
+
 st.sidebar.markdown("---")
 # Phase 2: SWAN Risk Toggle
 swan_risk = st.sidebar.select_slider(
