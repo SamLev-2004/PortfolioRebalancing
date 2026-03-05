@@ -12,7 +12,7 @@ st.set_page_config(page_title="AI Rebalancer Prototype", layout="wide")
 
 # -------- Sidebar: Portfolio Setup --------
 st.sidebar.title("AI Portfolio Rebalancer")
-st.sidebar.markdown("Upload your clients' portfolio to generate optimized trade recommendations.")
+st.sidebar.markdown("Upload your portfolio to generate optimized trade recommendations.")
 
 uploaded_file = st.sidebar.file_uploader("Upload Portfolio (CSV/TSV)", type=['csv', 'tsv'])
 
