@@ -77,7 +77,7 @@ if uploaded_file is not None:
             uploaded_file.seek(0)
             portfolio_df = pd.read_csv(uploaded_file, sep='\t')
             
-        portfolio_df.columns = portfolio_df.columns.str.strip()
+        portfolio_df.columns = portfolio_df.columns.str.strip().str.lower()
     except Exception as e:
         st.error(f"Could not read the uploaded portfolio file: {e}")
         st.stop()
