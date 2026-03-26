@@ -131,3 +131,148 @@ def plot_monte_carlo_simulations(portfolio_paths, days=252):
     )
     
     return fig
+
+def plot_model_comparison(forecast_results):
+    """
+    Plots the historical portfolio value alongside Exponential Smoothing and ARIMA forecasts.
+    Supports optional backtest overlay when holdout data is present.
+    """
+    from datetime import timedelta
+    
+    fig = go.Figure()
+    
+    has_backtest = forecast_results['test_dates'] is not None
+    
+    if has_backtest:
+        # Training data (muted)
+        fig.add_trace(go.Scatter(
+            x=forecast_results['train_dates'],
+            y=forecast_results['train_values'],
+            mode='lines',
+            name='Training Data',
+            line=dict(color='#666666', width=1.5)
+        ))
+        
+        # Actual test data (ground truth - bright white)
+        fig.add_trace(go.Scatter(
+            x=forecast_results['test_dates'],
+            y=forecast_results['test_values'],
+            mode='lines',
+            name='Actual (Holdout Truth)',
+            line=dict(color='white', width=3)
+        ))
+        
+        # Shaded backtest zone
+        test_start = str(forecast_results['test_dates'][0])
+        test_end = str(forecast_results['test_dates'][-1])
+        fig.add_vrect(
+            x0=test_start, x1=test_end,
+            fillcolor="rgba(255, 200, 0, 0.06)",
+            layer="below", line_width=0,
+        )
+        fig.add_annotation(
+            x=test_start, y=1, yref="paper",
+            text="Backtest Zone", showarrow=False,
+            font=dict(size=11, color="rgba(255,200,0,0.7)"),
+            xshift=50, yshift=-10
+        )
+        
+        # ES Backtest prediction
+        fig.add_trace(go.Scatter(
+            x=forecast_results['test_dates'],
+            y=forecast_results['es_backtest'],
+            mode='lines',
+            name='ES Backtest Prediction',
+            line=dict(color='#00d2ff', width=2.5, dash='dot')
+        ))
+        
+        # ARIMA Backtest prediction
+        fig.add_trace(go.Scatter(
+            x=forecast_results['test_dates'],
+            y=forecast_results['arima_backtest'],
+            mode='lines',
+            name='ARIMA Backtest Prediction',
+            line=dict(color='#ff6b6b', width=2.5, dash='dot')
+        ))
+    else:
+        # No backtest — show full history
+        fig.add_trace(go.Scatter(
+            x=forecast_results['historical_dates'],
+            y=forecast_results['historical_values'],
+            mode='lines',
+            name='Historical Portfolio Value',
+            line=dict(color='#b0b0b0', width=2)
+        ))
+    
+    # "Today" divider
+    today_date = forecast_results['historical_dates'][-1]
+    today_str = str(today_date)
+    fig.add_vline(x=today_str, line_width=2, line_dash="dot", line_color="white")
+    fig.add_annotation(
+        x=today_str, y=1, yref="paper",
+        text="Today", showarrow=False,
+        font=dict(size=13, color="white"), yshift=10
+    )
+    
+    # Shaded forecast zone
+    future_dates = forecast_results['future_dates']
+    fig.add_vrect(
+        x0=today_str, x1=str(future_dates[-1]),
+        fillcolor="rgba(255, 255, 255, 0.07)",
+        layer="below", line_width=0,
+    )
+    fig.add_annotation(
+        x=today_str, y=1, yref="paper",
+        text="Forecast Horizon", showarrow=False,
+        font=dict(size=11, color="rgba(255,255,255,0.5)"),
+        xshift=60, yshift=-10
+    )
+    
+    # Future forecast lines
+    es_forecast = forecast_results['es_forecast']
+    arima_forecast = forecast_results['arima_forecast']
+    
+    fig.add_trace(go.Scatter(
+        x=future_dates, y=es_forecast,
+        mode='lines+markers',
+        name='Exp. Smoothing Forecast',
+        line=dict(color='#00d2ff', width=4, dash='dash'),
+        marker=dict(size=4, color='#00d2ff')
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=future_dates, y=arima_forecast,
+        mode='lines+markers',
+        name='ARIMA Forecast',
+        line=dict(color='#ff6b6b', width=4, dash='dash'),
+        marker=dict(size=4, color='#ff6b6b')
+    ))
+    
+    # Endpoint markers
+    fig.add_trace(go.Scatter(
+        x=[future_dates[-1], future_dates[-1]],
+        y=[es_forecast[-1], arima_forecast[-1]],
+        mode='markers+text',
+        marker=dict(size=12, color=['#00d2ff', '#ff6b6b'], symbol='diamond'),
+        text=[f"${es_forecast[-1]:,.0f}", f"${arima_forecast[-1]:,.0f}"],
+        textposition='top center',
+        textfont=dict(size=11, color='white'),
+        name='Targets', showlegend=False
+    ))
+    
+    # Default zoom to last 6 months + forecast
+    six_months_ago = today_date - timedelta(days=180)
+    forecast_end = future_dates[-1] + timedelta(days=5)
+    
+    fig.update_layout(
+        title="Predictive Modeling: ARIMA vs. Exponential Smoothing",
+        xaxis_title="Date",
+        yaxis_title="Portfolio Value ($)",
+        yaxis_tickprefix="$",
+        yaxis_tickformat=",.0f",
+        hovermode="x unified",
+        xaxis_range=[six_months_ago, forecast_end],
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    
+    return fig
