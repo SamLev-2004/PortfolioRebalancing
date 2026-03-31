@@ -4,15 +4,15 @@ This grid compares the AI optimizer's outputs across all portfolios and SWAN ris
 
 | Portfolio            | Risk Level   | Total Value ($)   | Target ETF %   |   Num Trades | Estimated Gains ($)   | 30-Day ES Forecast ($)   | 30-Day ARIMA Forecast ($)   |
 |:---------------------|:-------------|:------------------|:---------------|-------------:|:----------------------|:-------------------------|:----------------------------|
-| High Risk Portfolio  | Conservative | $9,680.24         | 40.0%          |            8 | $-56.56               | $9,965                   | $9,668                      |
-| High Risk Portfolio  | Moderate     | $9,680.24         | 40.0%          |            8 | $-56.56               | $9,965                   | $9,668                      |
-| High Risk Portfolio  | Aggressive   | $9,680.24         | 20.0%          |            9 | $-56.56               | $10,009                  | $9,643                      |
-| Low Risk Portfolio   | Conservative | $9,779.70         | 40.0%          |            9 | $84.03                | $10,021                  | $10,026                     |
-| Low Risk Portfolio   | Moderate     | $9,779.70         | 40.0%          |            9 | $84.03                | $10,022                  | $10,029                     |
-| Low Risk Portfolio   | Aggressive   | $9,779.70         | 20.0%          |           10 | $84.03                | $10,027                  | $10,030                     |
-| Meme stock portfolio | Conservative | $10,448.02        | 40.0%          |            6 | $267.97               | $10,697                  | $10,709                     |
-| Meme stock portfolio | Moderate     | $10,448.02        | 40.0%          |            6 | $267.97               | $10,693                  | $10,710                     |
-| Meme stock portfolio | Aggressive   | $10,448.02        | 20.0%          |            5 | $263.37               | $10,763                  | $10,800                     |
-| portfolio            | Conservative | $53,647.78        | 80.0%          |            7 | $5,391.11             | $54,424                  | $53,648                     |
-| portfolio            | Moderate     | $53,647.78        | 60.0%          |            6 | $4,369.93             | $54,582                  | $53,608                     |
-| portfolio            | Aggressive   | $53,647.78        | 20.0%          |            8 | $4,657.03             | $54,835                  | $53,648                     |
+| High Risk Portfolio  | Conservative | $9,693.47         | 40.0%          |            8 | $-50.78               | $9,978                   | $9,691                      |
+| High Risk Portfolio  | Moderate     | $9,693.47         | 40.0%          |            8 | $-50.78               | $9,978                   | $9,691                      |
+| High Risk Portfolio  | Aggressive   | $9,693.47         | 20.0%          |            9 | $-50.78               | $10,021                  | $9,646                      |
+| Low Risk Portfolio   | Conservative | $9,780.73         | 40.0%          |            9 | $84.68                | $10,024                  | $10,023                     |
+| Low Risk Portfolio   | Moderate     | $9,780.73         | 40.0%          |            9 | $84.68                | $10,023                  | $10,030                     |
+| Low Risk Portfolio   | Aggressive   | $9,780.73         | 20.0%          |           10 | $84.68                | $10,028                  | $10,031                     |
+| Meme stock portfolio | Conservative | $10,479.98        | 40.0%          |            6 | $292.56               | $10,722                  | $10,742                     |
+| Meme stock portfolio | Moderate     | $10,479.98        | 40.0%          |            6 | $292.56               | $10,726                  | $10,743                     |
+| Meme stock portfolio | Aggressive   | $10,479.98        | 20.0%          |            5 | $288.16               | $10,796                  | $10,833                     |
+| portfolio            | Conservative | $53,674.79        | 80.0%          |            7 | $5,409.00             | $54,450                  | $53,675                     |
+| portfolio            | Moderate     | $53,674.79        | 60.0%          |            7 | $5,354.98             | $54,609                  | $53,637                     |
+| portfolio            | Aggressive   | $53,674.79        | 20.0%          |            8 | $4,676.90             | $54,849                  | $53,675                     |

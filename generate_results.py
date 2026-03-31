@@ -33,6 +33,9 @@ os.makedirs('results', exist_ok=True)
 # List to accumulate all matrix grid data
 matrix_data = []
 
+# String to accumulate all detailed findings for the compiled report
+compiled_markdown = "# Compiled AI Optimization Findings\n\nThis document contains the detailed fractional trades, constraints, and AI time-series forecasting metrics for every portfolio processed across all three (Conservative, Moderate, Aggressive) risk settings.\n\n---\n\n"
+
 for p_path in portfolios:
     name = os.path.basename(p_path).split('.')[0]
     print(f"\n--- Processing {name} ---")
@@ -95,42 +98,42 @@ for p_path in portfolios:
                 forecast_days=30, holdout_days=0, auto_tune_arima=True
             )
             
-            # Generate Individual Output Markdown
-            file_name = f"results/{name}_{risk_name}_results.md"
-            with open(file_name, "w") as f:
-                f.write(f"# Portfolio Results: {name} ({risk_name} Risk)\n\n")
-                f.write(f"**Total Initial Value:** ${total_val:,.2f}\n\n")
+            # Append to Compiled Markdown
+            compiled_markdown += f"## Portfolio: {name} | Risk Profile: {risk_name}\n\n"
+            compiled_markdown += f"**Total Initial Value:** ${total_val:,.2f} | **Target ETF Allocation:** {optimal_etf_pct:.1f}%\n\n"
+            
+            compiled_markdown += "### Initial vs Target Weights\n"
+            for t in tickers:
+                if t not in current_prices: continue
+                cur_weight = (current_holdings[t]['shares'] * current_prices[t]) / total_val if total_val > 0 else 0
+                tgt_weight = optimal_weights.get(t, 0)
+                compiled_markdown += f"- **{t}**: Current: {cur_weight*100:.1f}% -> Target: {tgt_weight*100:.1f}%\n"
                 
-                f.write("## Initial vs Target Weights\n")
-                for t in tickers:
-                    if t not in current_prices: continue
-                    cur_weight = (current_holdings[t]['shares'] * current_prices[t]) / total_val if total_val > 0 else 0
-                    tgt_weight = optimal_weights.get(t, 0)
-                    f.write(f"- **{t}**: Current: {cur_weight*100:.1f}% -> Target: {tgt_weight*100:.1f}%\n")
+            compiled_markdown += "\n### Required Trades (5% Drift Threshold)\n"
+            if not trades:
+                compiled_markdown += "Portfolio is fully optimized. No trades required.\n"
+            else:
+                for t_dict in trades:
+                    compiled_markdown += f"- **{t_dict['action']}** {t_dict['shares']} shares of {t_dict['ticker']} (Account: {t_dict['account']}, Expected Gain/Loss: ${t_dict['est_gain']:.2f})\n"
                     
-                f.write("\n## Required Trades (5% Drift Threshold)\n")
-                if not trades:
-                    f.write("Portfolio is fully optimized. No trades required.\n")
-                else:
-                    for t_dict in trades:
-                        f.write(f"- **{t_dict['action']}** {t_dict['shares']} shares of {t_dict['ticker']} (Account: {t_dict['account']}, Expected Gain/Loss: ${t_dict['est_gain']:.2f})\n")
-                        
-                f.write("\n## 30-Day Value Forecast (AI Model)\n")
+            compiled_markdown += "\n### 30-Day Value Forecast (AI Model)\n"
+            
+            es_final = 0
+            arima_final = 0
+            if forecast_results:
+                es_final = forecast_results['es_forecast'][-1]
+                arima_final = forecast_results['arima_forecast'][-1]
                 
-                es_final = 0
-                arima_final = 0
-                if forecast_results:
-                    es_final = forecast_results['es_forecast'][-1]
-                    arima_final = forecast_results['arima_forecast'][-1]
-                    
-                    f.write(f"- Exponential Smoothing Target: **${es_final:,.0f}** ({((es_final - total_val) / total_val) * 100:.2f}%)\n")
-                    f.write(f"- Auto-ARIMA Target: **${arima_final:,.0f}** ({((arima_final - total_val) / total_val) * 100:.2f}%)\n")
-                    
-                    if 'best_arima_order' in forecast_results:
-                        o = forecast_results['best_arima_order']
-                        f.write(f"- *Best ARIMA Order Selected by AIC: (p={o[0]}, d={o[1]}, q={o[2]})*\n")
-                else:
-                    f.write("- Could not generate forecasts due to insufficient modeling data.\n")
+                compiled_markdown += f"- Exponential Smoothing Target: **${es_final:,.0f}** ({((es_final - total_val) / total_val) * 100:.2f}%)\n"
+                compiled_markdown += f"- Auto-ARIMA Target: **${arima_final:,.0f}** ({((arima_final - total_val) / total_val) * 100:.2f}%)\n"
+                
+                if 'best_arima_order' in forecast_results:
+                    o = forecast_results['best_arima_order']
+                    compiled_markdown += f"- *Best ARIMA Order Selected by AIC: (p={o[0]}, d={o[1]}, q={o[2]})*\n"
+            else:
+                compiled_markdown += "- Could not generate forecasts due to insufficient modeling data.\n"
+                
+            compiled_markdown += "\n---\n\n"
             
             # Add data mapping to Matrix List
             matrix_data.append({
@@ -146,6 +149,11 @@ for p_path in portfolios:
             
     except Exception as e:
         print(f"Error processing {name}: {e}")
+
+# Save Compiled Report
+with open("results/compiled_results.md", "w") as f:
+    f.write(compiled_markdown)
+print("Successfully saved compiled details to compiled_results.md!")
 
 # Generate Master Grid
 if matrix_data:
